@@ -31,3 +31,5 @@ ML Models:
 
 data_preprocessing: Data preprocessing code to combine two different datasets
 parameter_analyse: Ugriz and mu_sh0es parameter analysing codes
+
+(Parameter explanations: coming soon...)
