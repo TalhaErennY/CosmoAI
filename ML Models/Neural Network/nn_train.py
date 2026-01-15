@@ -7,10 +7,8 @@ Original file is located at
     https://colab.research.google.com/drive/1zfqctpdfG-90yb_NN0PFv8DGpqwzszs2
 """
 
-# 📦 Kurulum (gerekiyorsa)
+#libraries
 !pip install -q tensorflow scikit-learn matplotlib openpyxl
-
-# 📚 Kütüphaneler
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -29,7 +27,7 @@ df['u-g'] = df['u'] - df['g']
 df['g-r'] = df['g'] - df['r']
 df['r-i'] = df['r'] - df['i']
 df['i-z'] = df['i'] - df['z']
-z_plot = df['redshift'] #grafik için
+z_plot = df['redshift']
 
 features = ['u', 'g', 'r', 'i', 'z', 'u-g', 'g-r', 'r-i', 'i-z']
 X = df[features]
@@ -63,7 +61,7 @@ model.compile(optimizer=keras.optimizers.Adam(learning_rate=3e-4),
 
 early_stop = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
 
-# 🏋️ Eğitim
+#train model
 history = model.fit(X_train_scaled, y_train, validation_split=0.2, epochs=250, batch_size=32, callbacks=[early_stop], verbose=1)
 
 y_pred = model.predict(X_test_scaled).flatten()
