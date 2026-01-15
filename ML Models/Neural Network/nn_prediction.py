@@ -7,7 +7,7 @@ Original file is located at
     https://colab.research.google.com/drive/1zfqctpdfG-90yb_NN0PFv8DGpqwzszs2
 """
 
-# 📦 Gerekli Kütüphaneler
+#libraries
 !pip install -q tensorflow scikit-learn matplotlib openpyxl joblib tqdm
 
 import pandas as pd
@@ -19,11 +19,11 @@ import joblib
 from tqdm import tqdm
 import tensorflow.keras.backend as K
 
-# 🧠 MSE (eğer eğitimde özel tanımlıysa)
+#mse
 def mse(y_true, y_pred):
     return K.mean(K.square(y_true - y_pred))
 
-# 🔹 Quasar verilerini oku
+#read quasar data
 files = [
     "quasar_00_10.csv",
     "quasar_10_20.csv",
@@ -31,27 +31,25 @@ files = [
 ]
 quasar_df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
 
-# 🔹 Renk farkları hesapla
+#feature engineering
 quasar_df['u-g'] = quasar_df['u'] - quasar_df['g']
 quasar_df['g-r'] = quasar_df['g'] - quasar_df['r']
 quasar_df['r-i'] = quasar_df['r'] - quasar_df['i']
 quasar_df['i-z'] = quasar_df['i'] - quasar_df['z']
 
-# 🔹 Modelin beklediği feature sırasını yükle
 feature_order = joblib.load("feature_order.save")  # aynı sırayı sağlar
 scaler = joblib.load("scaler.save")
 
-# 🔹 Sadece gerekli sütunları al ve sıraya koy
 quasar_df = quasar_df.dropna(subset=feature_order + ['redshift'])
 
 X = quasar_df[feature_order]
 z = quasar_df['redshift'].values
 X_scaled = scaler.transform(X)
 
-# 🔹 Modeli yükle
+# load model
 model = load_model("final_model_mu_shoes_redshift.h5", custom_objects={"mse": mse})
 
-# 🔁 Binleme ve tahmin (0.01–7.00 arası)
+#create bins
 bins = np.round(np.arange(0.01, 7.01, 0.01), 3)
 bin_results = []
 
@@ -68,13 +66,13 @@ for center in tqdm(bins, desc="Tahmin ediliyor", unit="bin"):
 bin_df = pd.DataFrame(bin_results, columns=["redshift", "MU_SHOES_pred", "count"])
 bin_df.to_csv("quasar_mu_shoes_bin_predictions_fullrange.csv", index=False)
 
-# 🌌 Pantheon+ verisi
+#SNIA data
 pantheon_df = pd.read_excel("Pantheon+SH0ES_ml_nodup.xlsx")
 pantheon_df = pantheon_df[['zCMB', 'MU_SH0ES']].dropna()
 pantheon_df = pantheon_df.rename(columns={'zCMB': 'redshift', 'MU_SH0ES': 'mu_true'})
 
 
-# 📈 Grafik
+#plot graphs
 plt.figure(figsize=(14, 7))
 bin_full = bin_df[bin_df['count'] == 100]
 bin_partial = bin_df[(bin_df['count'] < 100) & (bin_df['count'] > 0)]
